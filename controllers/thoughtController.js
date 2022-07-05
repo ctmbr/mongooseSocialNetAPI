@@ -14,9 +14,7 @@ module.exports = {
       });
   },
   getOneThought(req, res) {
-    Thought.findOne({ _id: req.params.ThoughtId })
-      .populate("friends")
-      .populate("thoughts")
+    Thought.findOne({ _id: req.params.thoughtId })
       .then((found) => {
         if (!found) {
           return res
@@ -40,7 +38,7 @@ module.exports = {
   },
   editThought(req, res) {
     Thought.findOneAndUpdate(
-      { _id: req.params.ThoughtId },
+      { _id: req.params.thoughtId },
       { $set: req.body },
       { runValidators: true, new: true }
     )
@@ -57,7 +55,7 @@ module.exports = {
       });
   },
   deleteThought(req, res) {
-    Thought.findOneAndDelete({ _id: req.params.ThoughtId })
+    Thought.findOneAndDelete({ _id: req.params.thoughtId })
       .then((deletedThought) => {
         if (!deletedThought) {
           return res
@@ -73,33 +71,40 @@ module.exports = {
         res.status(500).json(err);
       });
   },
-  // addReaction(req, res) {
-  //   Thought.findOneAndUpdate(
-  //     { _id: req.params.thoughtId },
-  //     { $addToSet: { reactionBody: req.body } },
-  //     { runValidators: true, new: true }
-  //   )
-  //     .then((newReaction) => {
-  //       res.json(newReaction);
-  //     })
-  //     .catch((err) => {
-  //       res.status(500).json(err);
-  //     });
-  // },
-  // deleteReaction(req, res) {
-  //   Thought.findOneAndDelete({ _id: req.params.ReactionId })
-  //     .then((deletedReaction) => {
-  //       if (!deletedReaction) {
-  //         return res
-  //           .status(404)
-  //           .json({ message: "No Reaction exits with this ID" });
-  //       }
-  //     })
-  //     .then(() => {
-  //       res.json({ successMsg: `${deletedReaction.Reactionname} deleted` });
-  //     })
-  //     .catch((err) => {
-  //       res.status(500).json(err);
-  //     });
-  // },
+  addReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $addToSet: { reactions: req.body } },
+      { runValidators: true, new: true }
+    )
+      .then((thought) => {
+        if (!thought) {
+          return res
+            .status(404)
+            .json({ message: "No Thought exits with this ID" });
+        }
+        res.json(thought);
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  },
+  deleteReaction(req, res) {
+    Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId },
+      { $pull: { reactions: { reactionId: req.params.reactionId } } },
+      { runValidators: true, new: true }
+    )
+      .then((thought) => {
+        if (!thought) {
+          return res
+            .status(404)
+            .json({ message: "No reaction exits with this ID" });
+        }
+        res.json({ successMsg: "Reaction deleted" });
+      })
+      .catch((err) => {
+        res.status(500).json(err);
+      });
+  },
 };
