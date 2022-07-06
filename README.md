@@ -12,6 +12,8 @@
 
 ### Description
 
+[demo](demo.mp4)
+
 This application uses the nodeJs packages mongoose and express to build a social network server that can run using insomnia.
 
 ### Installation
